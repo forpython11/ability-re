@@ -1,0 +1,66 @@
+when:
+  - event: push
+    branch: main
+
+steps:
+  backend:
+    image: maven:3.9.9-eclipse-temurin-21
+    commands:
+      - cd backend
+      - mvn -B test package
+
+  frontend:
+    image: node:22-alpine
+    commands:
+      - corepack enable
+      - cd frontend
+      - pnpm install --frozen-lockfile
+      - pnpm lint
+      - pnpm test
+      - pnpm build
+
+  package:
+    image: alpine:3.20
+    depends_on:
+      - backend
+      - frontend
+    commands:
+      - mkdir -p dist
+      - cp backend/target/backend-0.0.1-SNAPSHOT.jar dist/ability-re-backend.jar
+      - tar -czf dist/ability-re-frontend.tar.gz -C frontend .svelte-kit package.json pnpm-lock.yaml svelte.config.js vite.config.ts
+      - tar -czf ability-re-release.tar.gz dist docker-compose.yml README.md
+
+  deploy:
+    image: alpine:3.20
+    depends_on:
+      - package
+    environment:
+      DEPLOY_HOST:
+        from_secret: deploy_host
+      DEPLOY_PORT:
+        from_secret: deploy_port
+      DEPLOY_USER:
+        from_secret: deploy_user
+      DEPLOY_PATH:
+        from_secret: deploy_path
+      DEPLOY_SSH_KEY:
+        from_secret: deploy_ssh_key
+      DEPLOY_RESTART_CMD:
+        from_secret: deploy_restart_cmd
+    commands:
+      - apk add --no-cache openssh-client
+      - test -n "$DEPLOY_HOST"
+      - test -n "$DEPLOY_USER"
+      - test -n "$DEPLOY_PATH"
+      - mkdir -p ~/.ssh
+      - printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519
+      - chmod 600 ~/.ssh/id_ed25519
+      - ssh-keyscan -p "${DEPLOY_PORT:-22}" "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+      - scp -P "${DEPLOY_PORT:-22}" ability-re-release.tar.gz "$DEPLOY_USER@$DEPLOY_HOST:/tmp/ability-re-release.tar.gz"
+      - ssh -p "${DEPLOY_PORT:-22}" "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p '$DEPLOY_PATH' && tar -xzf /tmp/ability-re-release.tar.gz -C '$DEPLOY_PATH'"
+      - |
+        if [ -n "$DEPLOY_RESTART_CMD" ]; then
+          ssh -p "${DEPLOY_PORT:-22}" "$DEPLOY_USER@$DEPLOY_HOST" "$DEPLOY_RESTART_CMD"
+        else
+          echo "DEPLOY_RESTART_CMD is empty; files uploaded only."
+        fi
