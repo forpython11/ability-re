@@ -49,13 +49,13 @@ steps:
     # 这些敏感信息不要直接写在配置文件里，要在 Woodpecker 页面配置。
     environment:
       DEPLOY_HOST:
-        from_secret: 8.136.60.154
+        from_secret: deploy_host
       DEPLOY_PORT:
-        from_secret: 22
+        from_secret: deploy_port
       DEPLOY_USER:
-        from_secret: root
+        from_secret: deploy_user
       DEPLOY_PATH:
-        from_secret: /opt/ability-re
+        from_secret: deploy_path
       DEPLOY_SSH_KEY:
         from_secret: deploy_ssh_key
       DEPLOY_RESTART_CMD:
