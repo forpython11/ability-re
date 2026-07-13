@@ -23,6 +23,7 @@ steps:
       - corepack enable
       - cd frontend
       - pnpm install --frozen-lockfile
+      - pnpm exec svelte-kit sync
       - pnpm lint
       - pnpm test
       - pnpm build
