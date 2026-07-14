@@ -17,7 +17,7 @@
 | `deploy_user` | `root` |
 | `deploy_path` | `/opt/ability-re` |
 | `deploy_ssh_key` | Mac 上 `~/.ssh/woodpecker_deploy_nopass` 的完整私钥内容 |
-| `deploy_restart_cmd` | `echo "deploy done"` |
+| `deploy_restart_cmd` | `cd /opt/ability-re && docker compose up -d` |
 
 ## 2. 重新运行 Woodpecker 流水线
 
@@ -73,11 +73,12 @@ ss -lntp | grep 18080
 
 ```bash
 cd /opt/ability-re
-docker compose up -d mysql
+docker compose up -d
 docker compose ps
 ```
 
-- [ ] 启动后端服务，确认它监听 `18080`
+- [ ] 确认 `ability-re-backend` 监听 `18080`
+- [ ] 确认 `ability-re-frontend` 监听 `18081`
 - [ ] 测试后端健康接口：
 
 ```bash
@@ -87,7 +88,7 @@ curl http://127.0.0.1:18080/api/health
 - [ ] 浏览器访问：
 
 ```text
-http://8.136.60.154:18080/api/health
+http://8.136.60.154:18081
 ```
 
 ## 6. 最后改成自动重启
@@ -96,6 +97,6 @@ http://8.136.60.154:18080/api/health
 
 | Name | Value |
 | --- | --- |
-| `deploy_restart_cmd` | `cd /opt/ability-re && docker compose up -d --build` |
+| `deploy_restart_cmd` | `cd /opt/ability-re && docker compose up -d` |
 
 - [ ] 再推送一次代码，确认后续可以自动部署。

@@ -38,8 +38,9 @@ steps:
     commands:
       - mkdir -p dist
       - cp backend/target/backend-0.0.1-SNAPSHOT.jar dist/ability-re-backend.jar
-      - tar -czf dist/ability-re-frontend.tar.gz -C frontend .svelte-kit package.json pnpm-lock.yaml svelte.config.js vite.config.ts
-      - tar -czf ability-re-release.tar.gz dist docker-compose.yml README.md
+      - mkdir -p dist/frontend
+      - cp -r frontend/build/. dist/frontend/
+      - tar -czf ability-re-release.tar.gz dist docker-compose.yml nginx.conf README.md
 
   # 部署步骤：等 package 成功后，通过 SSH 把发布包上传到服务器并解压。
   deploy:
