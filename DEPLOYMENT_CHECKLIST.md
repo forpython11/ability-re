@@ -51,17 +51,21 @@ unset CURRENT_ROOT_PASSWORD NEW_DB_PASSWORD NEW_ROOT_PASSWORD
 
 ## 2. 安装本地 Kubernetes 工具
 
-当前 Mac 为 Intel `x86_64`、12 CPU、16 GiB 内存，满足本地 Minikube 要求。当前尚未安装 Docker、kubectl、Minikube 和 Helm。
+当前 Mac 为 Intel `x86_64`，Docker Desktop、kubectl、Minikube 和 Helm 已安装；本地 Minikube 集群已使用 Docker 驱动启动并完成 Nginx 冒烟验证。
 
-- [ ] 安装并启动 Docker Desktop
+- [x] 安装并启动 Docker Desktop
 - [ ] Docker Desktop 分配 8 GiB 内存和 4 CPU，为 6 GiB Minikube 留出运行时余量
-- [ ] 使用 Homebrew 安装工具：
+- [x] 安装 kubectl、Minikube、Helm：
 
 ```bash
-brew install kubectl minikube helm
+# Homebrew 访问 ghcr.io 较慢，本机改用二进制方式安装；完整记录见：
+# LOCAL_K8S_MINIKUBE_SETUP.md
+kubectl version --client
+minikube version
+helm version
 ```
 
-- [ ] 验证工具：
+- [x] 验证工具：
 
 ```bash
 docker version
@@ -70,22 +74,35 @@ minikube version
 helm version
 ```
 
-- [ ] 创建本地 Kubernetes 集群：
+- [x] 创建本地 Kubernetes 集群：
 
 ```bash
 minikube start \
   --driver=docker \
-  --cpus=4 \
-  --memory=6144 \
-  --disk-size=30g
+  --kubernetes-version=v1.30.5
 ```
 
-- [ ] 验证节点 Ready：
+- [x] 验证节点 Ready：
 
 ```bash
 kubectl get nodes
 minikube status
 ```
+
+- [x] 使用 Nginx 完成本地 Kubernetes 冒烟验证：
+
+```bash
+docker pull docker.m.daocloud.io/library/nginx:alpine
+minikube image load docker.m.daocloud.io/library/nginx:alpine
+kubectl create deployment nginx --image=docker.m.daocloud.io/library/nginx:alpine
+kubectl expose deployment nginx --type=NodePort --port=80
+kubectl get pods
+minikube service nginx --url
+```
+
+当前验证结果：`nginx` Pod 已达到 `1/1 Running`，`minikube service nginx --url` 已输出本地访问地址。
+
+注意：本机启动 Minikube 时不要加 `--image-mirror-country=cn` 或 `--image-repository=registry.cn-hangzhou.aliyuncs.com/google_containers`，否则会触发阿里云 OSS Kubernetes release `.sha256` 文件 404。Docker Hub 拉业务镜像可能超时，测试镜像优先使用国内代理并通过 `minikube image load` 导入。
 
 ## 3. 应用镜像化
 
