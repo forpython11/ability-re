@@ -217,7 +217,7 @@ kubectl -n ability-re port-forward service/ability-re-frontend 18081:80
 
 - [ ] 浏览器访问 `http://127.0.0.1:18081`
 - [ ] 访问 `http://127.0.0.1:18081/api/health`
-- [ ] 提交联系表单并确认写入本地 MySQL
+- [ ] 确认首页展示个人技术记录内容，且无联系表单、注册、支付或在线交易入口
 
 ## 7. 验证 Kubernetes 能力
 
@@ -284,7 +284,7 @@ Woodpecker Agent 在阿里云服务器上，默认无法稳定访问位于家庭
 - [ ] Minikube 节点为 Ready
 - [ ] 前端、后端、MySQL Pod 均 Ready 且 30 分钟内无异常重启
 - [ ] MySQL PVC 为 Bound，Minikube stop/start 后测试数据保留
-- [ ] 首页、`/api/health`、联系表单均通过
+- [ ] 首页、`/api/health` 均通过，且页面无联系表单、注册、支付或在线交易入口
 - [ ] 删除前后端 Pod 后均能在 5 分钟内恢复
 - [ ] Helm upgrade 和 rollback 均成功
 - [ ] Helm lint、template 和 dry-run 均成功

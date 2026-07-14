@@ -26,9 +26,9 @@ class SiteControllerTest {
         mockMvc.perform(get("/api/site/home"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(0))
-                .andExpect(jsonPath("$.data.hero.title").value("用新技术重构你的数字能力"))
+                .andExpect(jsonPath("$.data.hero.title").value("能力重构个人技术记录"))
                 .andExpect(jsonPath("$.data.features", hasSize(3)))
-                .andExpect(jsonPath("$.data.features[0].title").value("前后端分离"));
+                .andExpect(jsonPath("$.data.features[0].title").value("前端学习笔记"));
     }
 
     @Test

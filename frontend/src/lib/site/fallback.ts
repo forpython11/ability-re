@@ -2,23 +2,23 @@ import type { HomePage } from '$lib/api/types';
 
 export const fallbackHomePage: HomePage = {
   hero: {
-    title: '用新技术重构你的数字能力',
-    subtitle: 'Ability Re 是一个前后端分离官网示例，使用 SvelteKit、Spring Boot 和 MySQL 打造现代化展示与线索收集体验。',
+    title: '能力重构个人技术记录',
+    subtitle: '这里记录个人在 SvelteKit、Spring Boot、MySQL 和服务器部署中的学习过程与项目实践。',
   },
   features: [
     {
-      title: '前后端分离',
-      description: 'SvelteKit 负责页面体验，Spring Boot 负责业务 API，边界清晰，方便团队协作。',
+      title: '前端学习笔记',
+      description: '整理 SvelteKit、TypeScript、页面结构和交互体验相关的学习记录。',
       icon: 'layers',
     },
     {
-      title: '数据库驱动',
-      description: 'MySQL 保存官网内容与联系线索，Flyway 管理表结构版本。',
+      title: '后端工程实践',
+      description: '记录 Spring Boot、接口设计、参数校验和自动化测试的实践过程。',
       icon: 'database',
     },
     {
-      title: '工程化基础',
-      description: 'TypeScript、Java 21、测试、配置隔离和 Docker 数据库脚本作为项目起点。',
+      title: '部署与数据库记录',
+      description: '沉淀 Linux、Docker、MySQL、Flyway 和日常部署排查经验。',
       icon: 'sparkles',
     },
   ],

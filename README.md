@@ -1,6 +1,6 @@
-# Ability Re
+# 能力重构
 
-一个前后端分离官网项目，用来学习现代前端与主流 Java 后端工程。
+一个个人技术记录网站，用来整理现代前端、Java 后端、数据库和部署相关的学习实践。
 
 ## 技术栈
 
@@ -14,7 +14,7 @@
 
 ```text
 ability-re/
-├── frontend/                 # SvelteKit 官网前端
+├── frontend/                 # SvelteKit 个人技术站前端
 ├── backend/                  # Spring Boot API 后端
 ├── docker-compose.yml        # MySQL 本地数据库
 ├── README.md
@@ -71,10 +71,11 @@ export DB_PASSWORD='<strong-password>'
 mvn spring-boot:run
 ```
 
-后端启动时 Flyway 会自动执行：
+后端启动时 Flyway 会自动执行数据库迁移：
 
 ```text
 backend/src/main/resources/db/migration/V1__init_schema.sql
+backend/src/main/resources/db/migration/V2__personal_site_content.sql
 ```
 
 并创建：
@@ -90,7 +91,6 @@ contact_messages
 ```text
 GET  http://localhost:18080/api/health
 GET  http://localhost:18080/api/site/home
-POST http://localhost:18080/api/contact
 ```
 
 ## 启动前端
@@ -124,10 +124,9 @@ pnpm build
 
 ## 当前功能
 
-- 官网首页 Hero 区域
-- 能力卡片展示
+- 个人技术记录首页 Hero 区域
+- 学习方向卡片展示
 - 从后端 API 读取 MySQL 中的官网内容
-- 联系表单提交到后端并保存进 MySQL
-- 后端参数校验
-- Flyway 初始化数据库表和种子内容
+- 无注册、评论、支付和在线交易功能
+- Flyway 初始化数据库表并迁移个人站内容
 - 前后端基础测试

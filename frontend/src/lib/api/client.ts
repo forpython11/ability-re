@@ -1,4 +1,4 @@
-import type { ApiResponse, ContactPayload, ContactResult, HomePage } from './types';
+import type { ApiResponse, HomePage } from './types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
 
@@ -21,11 +21,4 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 export function getHomePage(): Promise<HomePage> {
   return request<HomePage>('/api/site/home');
-}
-
-export function submitContact(payload: ContactPayload): Promise<ContactResult> {
-  return request<ContactResult>('/api/contact', {
-    method: 'POST',
-    body: JSON.stringify(payload),
-  });
 }

@@ -20,25 +20,23 @@ class ContactControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    void savesContactMessageIntoDatabase() throws Exception {
+    void returnsGoneBecauseContactFormIsDisabled() throws Exception {
         mockMvc.perform(post("/api/contact")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
                                   "name": "张三",
                                   "email": "zhangsan@example.com",
-                                  "company": "Ability Re",
-                                  "message": "我想了解官网建设和后端服务能力。"
+                                  "message": "我想交流个人技术学习记录。"
                                 }
                                 """))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value(0))
-                .andExpect(jsonPath("$.data.id").isNumber())
-                .andExpect(jsonPath("$.data.status").value("NEW"));
+                .andExpect(status().isGone())
+                .andExpect(jsonPath("$.code").value(410))
+                .andExpect(jsonPath("$.message").value("contact form disabled"));
     }
 
     @Test
-    void rejectsInvalidContactMessage() throws Exception {
+    void ignoresInvalidPayloadWhenContactFormIsDisabled() throws Exception {
         mockMvc.perform(post("/api/contact")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
@@ -48,6 +46,7 @@ class ContactControllerTest {
                                   "message": "太短"
                                 }
                                 """))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isGone())
+                .andExpect(jsonPath("$.code").value(410));
     }
 }

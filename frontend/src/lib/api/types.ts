@@ -15,15 +15,3 @@ export type HomePage = {
     icon: string;
   }>;
 };
-
-export type ContactPayload = {
-  name: string;
-  email: string;
-  company?: string;
-  message: string;
-};
-
-export type ContactResult = {
-  id: number;
-  status: string;
-};
