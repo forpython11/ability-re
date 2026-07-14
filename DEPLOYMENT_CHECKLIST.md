@@ -15,6 +15,7 @@
 - [x] 已轮换 MySQL root 和业务用户密码，并同步写入 `.env`
 - [ ] 确认服务器上的 `3306`、`18080` 只监听 `127.0.0.1`
 - [x] 流水线已固化 Compose 重建命令，不再依赖 `deploy_restart_cmd` Secret
+- [x] 前后端已改为串行构建，并限制 Maven/Node 内存，避免 2 GB ECS 资源耗尽
 - [ ] 再推送一次提交，确认线上 Compose 可以完全自动更新
 
 本地 Kubernetes 建设期间不关闭、不修改线上 Docker Compose。公网只开放前端 `18081`，后端 `18080` 和 MySQL `3306` 不开放。

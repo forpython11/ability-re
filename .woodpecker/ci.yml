@@ -12,6 +12,8 @@ steps:
   # 后端步骤：使用 Maven + Java 21 镜像，进入 backend 目录后执行测试和打包。
   backend:
     image: maven:3.9.9-eclipse-temurin-21
+    environment:
+      MAVEN_OPTS: "-Xms128m -Xmx512m -XX:MaxMetaspaceSize=256m"
     commands:
       - cd backend
       - mvn -B -ntp package
@@ -19,6 +21,10 @@ steps:
   # 前端步骤：使用 Node 22 镜像，安装依赖、检查代码、测试并构建前端。
   frontend:
     image: node:22-alpine
+    depends_on:
+      - backend
+    environment:
+      NODE_OPTIONS: "--max-old-space-size=512"
     commands:
       - corepack enable
       - cd frontend
@@ -33,7 +39,6 @@ steps:
     image: alpine:3.20
     # depends_on 表示这个步骤必须等 backend、frontend 完成后才执行。
     depends_on:
-      - backend
       - frontend
     commands:
       - mkdir -p dist

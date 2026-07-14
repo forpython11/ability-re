@@ -31,7 +31,7 @@
    - 执行 `pnpm config set store-dir /pnpm/store`
    - 执行 `pnpm install --frozen-lockfile --prefer-offline`
 5. 已将后端命令简化为 `mvn -B -ntp package`。`package` 已包含 test 生命周期，`-ntp` 可减少无用下载进度日志。
-6. 保留 backend/frontend 并行执行；连续观察 5 次流水线。如出现 OOM、容器被杀或系统可用内存低于 200 MiB，再改为串行，不能为了几秒并行收益牺牲稳定性。
+6. backend/frontend 并行构建曾让服务器可用内存降至 82 MiB，并导致流水线被终止，因此已改为串行执行，同时限制 Maven 和 Node 最大堆内存。只有迁移到更大的独立 Agent 后才重新评估并行。
 7. 已从 `frontend/package.json` 删除未使用的 `@sveltejs/adapter-auto`，当前实际使用的是 `adapter-static`，见 `frontend/svelte.config.js:1-10`。
 
 预期收益：第二次及后续构建不再从公网完整下载 Maven 与 pnpm 依赖。以 5 次 warm build 的中位数衡量，完整流水线耗时应降至改造前中位数的 60% 以内。
@@ -99,7 +99,7 @@ Woodpecker 3.16 支持 `when.path.include/exclude`。拆分时不能简单地在
 
 - **缓存污染**：pnpm 使用 frozen lockfile；Maven 保留版本锁定。出现异常时只清理对应缓存目录，不删除应用数据。
 - **Trusted 仓库权限扩大**：仅为当前自管仓库开启，缓存挂载限制在 `/opt/woodpecker-cache`，不挂载宿主机根目录。
-- **并行构建内存不足**：监控 5 次峰值；发现 OOM 后串行执行 backend/frontend，或升级 CI 节点。
+- **构建内存不足**：已串行执行 backend/frontend，并限制 JVM/Node 堆；服务器增加 swap 作为保护，长期仍建议升级或拆分 CI 节点。
 - **路径过滤漏构建**：`docker-compose.yml`、`nginx.conf` 和 workflow 自身必须纳入对应 include；首次拆分用前端、后端、文档、基础设施四类测试提交验证。
 - **部署了新文件但进程未更新**：后端部署必须显式 restart 或 force-recreate，并以健康检查作为完成条件。
 
