@@ -31,7 +31,7 @@ ability-re/
 
 ```sql
 CREATE DATABASE ability_re DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'ability_re'@'%' IDENTIFIED BY 'CHANGE_ME';
+CREATE USER 'ability_re'@'localhost' IDENTIFIED BY '<strong-password>';
 GRANT ALL PRIVILEGES ON ability_re.* TO 'ability_re'@'%';
 FLUSH PRIVILEGES;
 ```
@@ -42,13 +42,20 @@ Navicat 连接信息：
 Host: localhost
 Port: 3306
 User: ability_re
-Password: CHANGE_ME
+Password: <strong-password>
 Database: ability_re
 ```
 
 ### 方式二：使用 Docker 启动 MySQL
 
-如果后续安装 Docker，可以执行：
+先创建本地环境文件并将两个占位值替换为不同的随机密码：
+
+```bash
+cp .env.example .env
+chmod 600 .env
+```
+
+然后执行：
 
 ```bash
 docker compose up -d mysql
@@ -60,6 +67,7 @@ docker compose up -d mysql
 
 ```bash
 cd backend
+export DB_PASSWORD='<strong-password>'
 mvn spring-boot:run
 ```
 
