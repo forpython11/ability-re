@@ -4,18 +4,22 @@ when:
     branch: main
     evaluate: 'COMPONENT == "frontend"'
 
+concurrency:
+  limit: 1
+  group: ability-re-deploy
+
 steps:
   build:
     image: node:22-alpine
     environment:
-      NODE_OPTIONS: "--max-old-space-size=512"
+      NODE_OPTIONS: "--max-old-space-size=384"
     commands:
       - corepack enable
       - cd frontend
       - pnpm install --frozen-lockfile --prefer-offline
       - pnpm exec svelte-kit sync
       - pnpm lint
-      - pnpm test
+      - pnpm exec vitest run --minWorkers=1 --maxWorkers=1
       - pnpm build
 
   package:

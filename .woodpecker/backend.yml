@@ -4,14 +4,18 @@ when:
     branch: main
     evaluate: 'COMPONENT == "backend"'
 
+concurrency:
+  limit: 1
+  group: ability-re-deploy
+
 steps:
   build:
     image: maven:3.9.9-eclipse-temurin-21
     environment:
-      MAVEN_OPTS: "-Xms128m -Xmx512m -XX:MaxMetaspaceSize=256m"
+      MAVEN_OPTS: "-Xms64m -Xmx320m -XX:MaxMetaspaceSize=160m"
     commands:
       - cd backend
-      - mvn -B -ntp package
+      - mvn -B -ntp -DforkCount=0 package
 
   package:
     image: alpine:3.20
