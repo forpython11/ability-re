@@ -28,7 +28,20 @@ class SiteControllerTest {
                 .andExpect(jsonPath("$.code").value(0))
                 .andExpect(jsonPath("$.data.hero.title").value("能力重构个人技术记录"))
                 .andExpect(jsonPath("$.data.features", hasSize(3)))
-                .andExpect(jsonPath("$.data.features[0].title").value("前端学习笔记"));
+                .andExpect(jsonPath("$.data.features[0].title").value("前端学习笔记"))
+                .andExpect(jsonPath("$.data.learningRecords", hasSize(1)))
+                .andExpect(jsonPath("$.data.learningRecords[0].slug").value("kubernetes-minikube"));
+    }
+
+    @Test
+    void returnsLearningRecordDetailFromDatabase() throws Exception {
+        mockMvc.perform(get("/api/site/learning-records/kubernetes-minikube"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(0))
+                .andExpect(jsonPath("$.data.slug").value("kubernetes-minikube"))
+                .andExpect(jsonPath("$.data.title").value("从零跑通本地 Kubernetes：kubectl、Minikube、Helm 与 Nginx 部署"))
+                .andExpect(jsonPath("$.data.blocks", hasSize(8)))
+                .andExpect(jsonPath("$.data.blocks[0].heading").value("我到底做了什么"));
     }
 
     @Test

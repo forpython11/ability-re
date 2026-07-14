@@ -22,6 +22,7 @@
   <a class="brand" href="#top">能力重构</a>
   <nav aria-label="主导航">
     <a href="#features">记录</a>
+    <a href="#kubernetes-note">K8s 学习</a>
     <a href="#about">关于</a>
     <a href="#notice">说明</a>
   </nav>
@@ -35,7 +36,7 @@
       <p class="subtitle">{data.home.hero.subtitle}</p>
       <div class="actions">
         <a class="button primary" href="#features">查看记录</a>
-        <a class="button ghost" href="#about">了解本站</a>
+        <a class="button ghost" href="#kubernetes-note">K8s 学习记录</a>
       </div>
       {#if !data.apiAvailable}
         <p class="api-tip">当前使用前端兜底内容；启动后端后会自动读取数据库内容。</p>
@@ -47,7 +48,7 @@
       <span>后端实践</span>
       <strong>Spring Boot</strong>
       <span>部署记录</span>
-      <strong>Linux / MySQL</strong>
+      <strong>Docker / K8s</strong>
     </div>
   </section>
 
@@ -62,6 +63,25 @@
           <div class="icon">{feature.icon}</div>
           <h3>{feature.title}</h3>
           <p>{feature.description}</p>
+        </article>
+      {/each}
+    </div>
+  </section>
+
+  <section id="kubernetes-note" class="section learning-section">
+    <div class="section-heading">
+      <p class="eyebrow">Learning records</p>
+      <h2>完整学习记录单独成页</h2>
+      <p>首页只保留入口卡片；详细过程由服务端从数据库读取后在学习记录页渲染。</p>
+    </div>
+
+    <div class="learning-grid">
+      {#each data.home.learningRecords as record}
+        <article class="learning-card">
+          <p class="eyebrow">{record.category}</p>
+          <h3>{record.title}</h3>
+          <p>{record.summary}</p>
+          <a class="text-link" href={`/learning/${record.slug}`}>查看完整学习记录</a>
         </article>
       {/each}
     </div>

@@ -1,12 +1,11 @@
-import { getHomePage } from '$lib/api/client';
+import { getHomePage } from '$lib/api/server';
 import { fallbackHomePage } from '$lib/site/fallback';
+import type { PageServerLoad } from './$types';
 
-export const ssr = false;
-
-export async function load() {
+export const load: PageServerLoad = async ({ fetch }) => {
   try {
     return {
-      home: await getHomePage(),
+      home: await getHomePage(fetch),
       apiAvailable: true,
     };
   } catch {
@@ -15,4 +14,4 @@ export async function load() {
       apiAvailable: false,
     };
   }
-}
+};

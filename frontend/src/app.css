@@ -177,6 +177,70 @@ h2 {
   padding: 1.5rem;
 }
 
+.learning-section .section-heading p:last-child {
+  color: #b9c4d4;
+  max-width: 840px;
+}
+
+.learning-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.learning-card,
+.takeaway-card {
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(15, 23, 42, 0.72);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.24);
+  border-radius: 8px;
+}
+
+.learning-card {
+  padding: 1.5rem;
+}
+
+.text-link {
+  display: inline-flex;
+  margin-top: 1rem;
+  color: #93c5fd;
+  font-weight: 700;
+}
+
+.step {
+  display: inline-flex;
+  margin-bottom: 1rem;
+  color: #8fb4ff;
+  font-weight: 800;
+}
+
+.learning-card p,
+.takeaway-card {
+  color: #b9c4d4;
+}
+
+.learning-card code {
+  color: #dbeafe;
+}
+
+.takeaway-card {
+  margin-top: 1rem;
+  padding: 1.5rem;
+}
+
+.takeaway-card h3 {
+  color: #e5edf7;
+}
+
+.takeaway-card ul {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.takeaway-card li + li {
+  margin-top: 0.5rem;
+}
+
 .icon {
   display: inline-flex;
   padding: 0.45rem 0.75rem;
@@ -191,6 +255,68 @@ h2 {
 .notice-section p,
 .site-footer {
   color: #b9c4d4;
+}
+
+.article-page {
+  width: min(920px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 4rem 0 6rem;
+}
+
+.article-shell {
+  display: grid;
+  gap: 2rem;
+}
+
+.article-hero,
+.article-section {
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(15, 23, 42, 0.72);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.24);
+  border-radius: 8px;
+  padding: clamp(1.5rem, 4vw, 3rem);
+}
+
+.article-hero h1 {
+  font-size: clamp(2.3rem, 6vw, 4.8rem);
+}
+
+.article-lead,
+.article-section p {
+  color: #b9c4d4;
+}
+
+.meta-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.meta-list span {
+  padding: 0.4rem 0.75rem;
+  color: #dbeafe;
+  background: rgba(59, 130, 246, 0.14);
+  border-radius: 999px;
+}
+
+.article-content {
+  display: grid;
+  gap: 1rem;
+}
+
+pre {
+  overflow-x: auto;
+  margin: 1rem 0 0;
+  padding: 1rem;
+  color: #dbeafe;
+  background: rgba(2, 6, 23, 0.72);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 8px;
+}
+
+code {
+  font-family: 'SFMono-Regular', Consolas, monospace;
 }
 
 .split-section,
@@ -223,7 +349,8 @@ h2 {
   .hero,
   .split-section,
   .notice-section,
-  .feature-grid {
+  .feature-grid,
+  .learning-grid {
     grid-template-columns: 1fr;
   }
 

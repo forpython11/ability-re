@@ -11,20 +11,34 @@ const data = {
     features: [
       { title: '前端学习笔记', description: '职责清晰', icon: 'layers' },
       { title: '后端工程实践', description: '内容入库', icon: 'database' },
-      { title: '部署与数据库记录', description: '测试构建', icon: 'sparkles' },
+      { title: '部署与 Kubernetes 记录', description: '测试构建', icon: 'sparkles' },
+    ],
+    learningRecords: [
+      {
+        slug: 'kubernetes-minikube',
+        title: '数据库返回的 Kubernetes 学习记录标题',
+        summary: '数据库返回的完整学习记录入口摘要',
+        category: 'Kubernetes learning record',
+      },
     ],
   },
   apiAvailable: true,
 };
 
 describe('landing page', () => {
-  it('renders hero and feature cards', () => {
+  it('renders hero, feature cards and learning record entry', () => {
     render(Page, { props: { data } });
 
     expect(screen.getByRole('heading', { name: '能力重构个人技术记录' })).toBeInTheDocument();
     expect(screen.getByText('前端学习笔记')).toBeInTheDocument();
     expect(screen.getByText('后端工程实践')).toBeInTheDocument();
-    expect(screen.getByText('部署与数据库记录')).toBeInTheDocument();
+    expect(screen.getByText('部署与 Kubernetes 记录')).toBeInTheDocument();
+    expect(screen.getByText('完整学习记录单独成页')).toBeInTheDocument();
+    expect(screen.getByText('数据库返回的 Kubernetes 学习记录标题')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: '查看完整学习记录' })).toHaveAttribute(
+      'href',
+      '/learning/kubernetes-minikube',
+    );
     expect(screen.getByText('个人技术记录网站')).toBeInTheDocument();
   });
 });

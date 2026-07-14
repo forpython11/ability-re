@@ -8,10 +8,18 @@ import org.springframework.transaction.annotation.Transactional;
 public class SiteService {
     private final SiteSectionRepository sectionRepository;
     private final SiteFeatureRepository featureRepository;
+    private final SiteLearningRecordRepository learningRecordRepository;
+    private final SiteLearningRecordBlockRepository learningRecordBlockRepository;
 
-    public SiteService(SiteSectionRepository sectionRepository, SiteFeatureRepository featureRepository) {
+    public SiteService(
+            SiteSectionRepository sectionRepository,
+            SiteFeatureRepository featureRepository,
+            SiteLearningRecordRepository learningRecordRepository,
+            SiteLearningRecordBlockRepository learningRecordBlockRepository) {
         this.sectionRepository = sectionRepository;
         this.featureRepository = featureRepository;
+        this.learningRecordRepository = learningRecordRepository;
+        this.learningRecordBlockRepository = learningRecordBlockRepository;
     }
 
     @Transactional(readOnly = true)
@@ -24,9 +32,41 @@ public class SiteService {
                         feature.getDescription(),
                         feature.getIcon()))
                 .toList();
+        List<HomePageResponse.LearningRecordSummary> learningRecords = learningRecordRepository.findAllByOrderByPublishedAtDesc()
+                .stream()
+                .map(record -> new HomePageResponse.LearningRecordSummary(
+                        record.getSlug(),
+                        record.getTitle(),
+                        record.getSummary(),
+                        record.getCategory()))
+                .toList();
 
         return new HomePageResponse(
                 new HomePageResponse.Hero(hero.getTitle(), hero.getSubtitle()),
-                features);
+                features,
+                learningRecords);
+    }
+
+    @Transactional(readOnly = true)
+    public LearningRecordResponse getLearningRecord(String slug) {
+        SiteLearningRecord record = learningRecordRepository.findBySlug(slug)
+                .orElseThrow(() -> new IllegalArgumentException("Learning record is missing: " + slug));
+        List<LearningRecordResponse.Block> blocks = learningRecordBlockRepository.findAllByRecordOrderBySortOrderAsc(record)
+                .stream()
+                .map(block -> new LearningRecordResponse.Block(
+                        block.getBlockType(),
+                        block.getHeading(),
+                        block.getBody(),
+                        block.getCodeSample()))
+                .toList();
+
+        return new LearningRecordResponse(
+                record.getSlug(),
+                record.getTitle(),
+                record.getSummary(),
+                record.getCategory(),
+                record.getEnvironment(),
+                record.getPublishedAt(),
+                blocks);
     }
 }
