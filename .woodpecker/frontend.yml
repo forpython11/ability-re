@@ -1,0 +1,57 @@
+# 手动运行时设置 COMPONENT=frontend，只构建并部署前端。
+when:
+  - event: manual
+    branch: main
+    evaluate: 'COMPONENT == "frontend"'
+
+steps:
+  build:
+    image: node:22-alpine
+    environment:
+      NODE_OPTIONS: "--max-old-space-size=512"
+    commands:
+      - corepack enable
+      - cd frontend
+      - pnpm install --frozen-lockfile --prefer-offline
+      - pnpm exec svelte-kit sync
+      - pnpm lint
+      - pnpm test
+      - pnpm build
+
+  package:
+    image: alpine:3.20
+    depends_on:
+      - build
+    commands:
+      - mkdir -p dist/frontend
+      - cp -r frontend/build/. dist/frontend/
+      - tar -czf ability-re-frontend-release.tar.gz dist/frontend docker-compose.yml nginx.conf
+      - tar -tzf ability-re-frontend-release.tar.gz >/dev/null
+
+  deploy:
+    image: alpine:3.20
+    depends_on:
+      - package
+    environment:
+      DEPLOY_HOST:
+        from_secret: deploy_host
+      DEPLOY_PORT:
+        from_secret: deploy_port
+      DEPLOY_USER:
+        from_secret: deploy_user
+      DEPLOY_PATH:
+        from_secret: deploy_path
+      DEPLOY_SSH_KEY:
+        from_secret: deploy_ssh_key
+    commands:
+      - apk add --no-cache openssh-client
+      - test -n "$DEPLOY_HOST"
+      - test -n "$DEPLOY_USER"
+      - test -n "$DEPLOY_PATH"
+      - test -n "$DEPLOY_SSH_KEY"
+      - mkdir -p ~/.ssh
+      - printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519
+      - chmod 600 ~/.ssh/id_ed25519
+      - install -m 600 .woodpecker/known_hosts ~/.ssh/known_hosts
+      - scp -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -i ~/.ssh/id_ed25519 -P "${DEPLOY_PORT:-22}" ability-re-frontend-release.tar.gz .woodpecker/deploy-frontend.sh "$DEPLOY_USER@$DEPLOY_HOST:/tmp/"
+      - ssh -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -i ~/.ssh/id_ed25519 -p "${DEPLOY_PORT:-22}" "$DEPLOY_USER@$DEPLOY_HOST" sh /tmp/deploy-frontend.sh "$DEPLOY_PATH" /tmp/ability-re-frontend-release.tar.gz

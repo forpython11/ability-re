@@ -122,6 +122,22 @@ pnpm test
 pnpm build
 ```
 
+## 手动部署
+
+Woodpecker 中的前端和后端使用两条独立工作流，推送代码不会自动部署。
+
+在仓库的 Woodpecker 页面点击 `Run pipeline`，选择 `main` 分支，并填写一个变量：
+
+```text
+# 只构建并部署后端
+COMPONENT=backend
+
+# 只构建并部署前端
+COMPONENT=frontend
+```
+
+每次只填写其中一个值。后端工作流会运行 Maven 测试并更新后端容器；前端工作流会运行检查、测试和构建，然后更新前端容器。
+
 ## 当前功能
 
 - 个人技术记录首页 Hero 区域
