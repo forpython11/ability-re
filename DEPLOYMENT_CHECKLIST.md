@@ -8,7 +8,7 @@
 
 - [x] Woodpecker 可以从 GitHub 拉取代码
 - [x] 前后端构建与测试成功
-- [x] `ability-re-mysql`、`ability-re-backend`、`ability-re-frontend` 已启动
+- [x] `ability-re-mysql`、`ability-re-backend`、`ability-re-frontend-app`、`ability-re-frontend` 已启动
 - [x] `http://127.0.0.1:18081/api/health` 返回 `status: ok`
 - [x] 公网可以访问 `http://8.136.60.154:18081`
 - [x] 在服务器创建 `/opt/ability-re/.env`，并将权限设置为 `600`
@@ -41,7 +41,7 @@ printf 'MYSQL_PASSWORD=%s\nMYSQL_ROOT_PASSWORD=%s\n' \
   "$NEW_DB_PASSWORD" "$NEW_ROOT_PASSWORD" > .env
 chmod 600 .env
 
-docker compose up -d --no-deps --force-recreate backend frontend
+docker compose up -d --no-deps --force-recreate backend frontend-app frontend
 curl --fail --retry 12 --retry-delay 5 --retry-connrefused http://127.0.0.1:18081/api/health
 
 unset CURRENT_ROOT_PASSWORD NEW_DB_PASSWORD NEW_ROOT_PASSWORD

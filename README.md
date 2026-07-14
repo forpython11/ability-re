@@ -4,7 +4,8 @@
 
 ## 技术栈
 
-- 前端：SvelteKit + Svelte 5 + TypeScript + Vite
+- 前端：SvelteKit SSR + Svelte 5 + TypeScript + Vite
+- 前端运行时：Node.js 22 + Nginx 反向代理
 - 后端：Java 21 + Spring Boot 3 + Spring Web + Spring Data JPA
 - 数据库：MySQL 8.4
 - 数据库迁移：Flyway

@@ -18,6 +18,9 @@ test -f "$archive"
 tar -tzf "$archive" >/dev/null
 tar -xzf "$archive" -C "$staging"
 test -d "$staging/dist/frontend"
+test -f "$staging/dist/frontend/index.js"
+test -d "$staging/dist/frontend/client"
+test -d "$staging/dist/frontend/server"
 test -f "$staging/docker-compose.yml"
 test -f "$staging/nginx.conf"
 
@@ -36,7 +39,7 @@ cp -R "$staging/dist/frontend/." dist/frontend.next/
 rm -rf dist/frontend
 mv dist/frontend.next dist/frontend
 
-docker compose up -d --no-deps --force-recreate frontend
+docker compose up -d --no-deps --force-recreate frontend-app frontend
 
 i=1
 while [ "$i" -le 30 ]; do
