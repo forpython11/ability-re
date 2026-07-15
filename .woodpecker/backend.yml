@@ -15,7 +15,7 @@ steps:
       MAVEN_OPTS: "-Xms64m -Xmx320m -XX:MaxMetaspaceSize=160m"
     commands:
       - cd backend
-      - mvn -B -ntp -DforkCount=0 package
+      - mvn -B -ntp -s ../.woodpecker/maven-settings.xml -DforkCount=0 package
 
   package:
     image: alpine:3.20
