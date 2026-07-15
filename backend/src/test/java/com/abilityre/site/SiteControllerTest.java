@@ -39,8 +39,8 @@ class SiteControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(0))
                 .andExpect(jsonPath("$.data.slug").value("kubernetes-minikube"))
-                .andExpect(jsonPath("$.data.title").value("从零跑通本地 Kubernetes：kubectl、Minikube、Helm 与 Nginx 部署"))
-                .andExpect(jsonPath("$.data.blocks", hasSize(8)))
+                .andExpect(jsonPath("$.data.title").value("从零跑通部署入口：Minikube、Nginx 反向代理、域名解析与备案排查"))
+                .andExpect(jsonPath("$.data.blocks", hasSize(10)))
                 .andExpect(jsonPath("$.data.blocks[0].heading").value("我到底做了什么"));
     }
 

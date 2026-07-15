@@ -1,8 +1,8 @@
 # Ability Re 部署与本地 Kubernetes 清单
 
-> 当前线上环境：Docker Compose 已部署到 `http://8.136.60.154:18081`。
-> 当前目标：先在 Mac 上使用 Minikube 跑通完整 Kubernetes 部署，不影响线上环境。
-> 后续目标：本地 Helm Chart 验证稳定后，再迁移到阿里云 ACK 或 kubeadm 集群。
+> 当前线上环境：Docker Compose 已部署到 `http://8.136.60.154:18081`，并通过宿主机 Nginx 将 `http://study.cinney.top/` 反向代理到 `127.0.0.1:18081`。
+> 当前目标：完成个人备案前置处理，备案通过前暂停 `cinney.top`、`www.cinney.top` 等备案要求关闭的域名解析；本地 Kubernetes 实验不影响线上环境。
+> 后续目标：备案通过后恢复域名解析、签发 HTTPS 证书，再继续本地 Helm Chart 验证并迁移到阿里云 ACK 或 kubeadm 集群。
 
 ## 1. 保持当前线上环境可用
 
@@ -11,6 +11,14 @@
 - [x] `ability-re-mysql`、`ability-re-backend`、`ability-re-frontend-app`、`ability-re-frontend` 已启动
 - [x] `http://127.0.0.1:18081/api/health` 返回 `status: ok`
 - [x] 公网可以访问 `http://8.136.60.154:18081`
+- [x] `study.cinney.top` 已解析到 `8.136.60.154`
+- [x] 服务器已安装并启动 Nginx `1.24.0`
+- [x] Nginx 已将 `http://study.cinney.top/` 反向代理到 `http://127.0.0.1:18081/`
+- [x] 服务器内网验证 `curl -I http://127.0.0.1:18081/` 返回 `200 OK`
+- [x] 服务器和公网验证 `curl -I http://study.cinney.top/` 返回 `200 OK`
+- [ ] 备案提交前按管局要求暂停 `cinney.top`、`www.cinney.top` 域名解析
+- [ ] 等待个人 ICP 备案审核通过
+- [ ] 备案通过后重新执行 `certbot --nginx -d study.cinney.top` 签发 HTTPS 证书
 - [x] 在服务器创建 `/opt/ability-re/.env`，并将权限设置为 `600`
 - [x] 已轮换 MySQL root 和业务用户密码，并同步写入 `.env`
 - [ ] 确认服务器上的 `3306`、`18080` 只监听 `127.0.0.1`
@@ -18,7 +26,7 @@
 - [x] 前后端已改为串行构建，并限制 Maven/Node 内存，避免 2 GB ECS 资源耗尽
 - [ ] 再推送一次提交，确认线上 Compose 可以完全自动更新
 
-本地 Kubernetes 建设期间不关闭、不修改线上 Docker Compose。公网只开放前端 `18081`，后端 `18080` 和 MySQL `3306` 不开放。
+本地 Kubernetes 建设期间不关闭、不修改线上 Docker Compose。公网入口当前包括前端调试端口 `18081` 和 Nginx `80`；后端 `18080` 和 MySQL `3306` 不开放。由于杭州 ECS 未备案域名访问会被阿里云返回 `Non-compliance ICP Filing` 的 403 页面，Let's Encrypt HTTP-01 校验暂时不能通过，HTTPS 配置需要等备案通过后再继续。
 
 ### 生产数据库密码轮换
 
