@@ -308,4 +308,4 @@ Woodpecker Agent 在阿里云服务器上，默认无法稳定访问位于家庭
 - [ ] 仓库中不存在真实密码、私钥或 kubeconfig
 - [ ] 线上 `http://8.136.60.154:18081` 在整个本地实验期间保持可用
 
-完整设计说明见 `.omx/plans/kubernetes-migration.md`。
+完整设计说明见 `docs/plans/kubernetes-migration.md`。
