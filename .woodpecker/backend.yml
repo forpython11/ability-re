@@ -17,7 +17,8 @@ steps:
     commands:
       - cd backend
       - rm -rf "$MAVEN_REPO_LOCAL"
-      - mvn -B -ntp -s ../.woodpecker/maven-settings.xml -Dmaven.repo.local="$MAVEN_REPO_LOCAL" -DforkCount=0 package
+      - mvn -B -ntp -s ../.woodpecker/maven-settings.xml -Dmaven.repo.local="$MAVEN_REPO_LOCAL" -DforkCount=0 test
+      - mvn -B -ntp -s ../.woodpecker/maven-settings.xml -Dmaven.repo.local="$MAVEN_REPO_LOCAL" -DskipTests package
 
   package:
     image: alpine:3.20
