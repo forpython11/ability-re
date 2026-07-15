@@ -15,6 +15,7 @@ steps:
       MAVEN_OPTS: "-Xms64m -Xmx320m -XX:MaxMetaspaceSize=160m"
     commands:
       - cd backend
+      - rm -rf ~/.m2/repository/org/apache/maven/shared/file-management ~/.m2/repository/org/apache/maven/maven-archiver ~/.m2/repository/org/codehaus/plexus/plexus-archiver ~/.m2/repository/org/apache/maven/plugins/maven-jar-plugin
       - mvn -B -ntp -s ../.woodpecker/maven-settings.xml -DforkCount=0 package
 
   package:
