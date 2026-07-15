@@ -11,6 +11,11 @@
 - 数据库迁移：Flyway
 - 测试：Vitest / JUnit 5 + MockMvc
 
+## 架构文档
+
+- [前端架构图](docs/architecture/frontend.md)
+- [后端架构图](docs/architecture/backend.md)
+
 ## 目录结构
 
 ```text
