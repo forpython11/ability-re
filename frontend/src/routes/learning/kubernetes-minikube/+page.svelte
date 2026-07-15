@@ -7,6 +7,7 @@
   };
 
   let { data }: { data: PageData } = $props();
+  // $derived 会在路由数据变化时重新计算，避免复制出不同步的页面状态。
   const record = $derived(data.record);
   const apiAvailable = $derived(data.apiAvailable);
   const pageTitle = $derived(record?.title ?? 'Kubernetes / Minikube 学习记录');
@@ -29,6 +30,7 @@
 
 <main class="article-page">
   {#if record}
+    <!-- 数据加载成功：先显示文章元信息，再按数据库顺序渲染正文块。 -->
     <article class="article-shell">
       <header class="article-hero">
         <p class="eyebrow">{record.category}</p>
@@ -45,6 +47,7 @@
         {#each record.blocks as block}
           <section class="article-section" id={block.type === 'capability' ? 'capability' : undefined}>
             <h2>{block.heading}</h2>
+            <!-- 数据库用两个换行分隔自然段，页面在这里恢复成多个 p 元素。 -->
             {#each block.body.split('\n\n') as paragraph}
               <p>{paragraph}</p>
             {/each}
@@ -56,6 +59,7 @@
       </div>
     </article>
   {:else}
+    <!-- 数据加载失败：保留清晰提示，避免页面完全空白。 -->
     <section class="article-hero">
       <p class="eyebrow">Kubernetes learning record</p>
       <h1>学习记录暂时无法加载</h1>

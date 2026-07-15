@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import Page from './+page.svelte';
 
+// 使用一份最小但完整的路由数据，测试不依赖真实后端或数据库。
 const data = {
   record: {
     slug: 'kubernetes-minikube',
@@ -30,6 +31,7 @@ const data = {
 
 describe('kubernetes learning record page', () => {
   it('renders learning record from route data', () => {
+    // render 模拟 SvelteKit 把 server load 结果作为 data 传给页面。
     render(Page, { props: { data } });
 
     expect(screen.getByRole('heading', { name: data.record.title })).toBeInTheDocument();

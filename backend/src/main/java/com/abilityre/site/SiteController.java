@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/** 将网站内容以只读 API 暴露给 SvelteKit 服务端渲染层。 */
 @RestController
 @RequestMapping("/api/site")
 public class SiteController {

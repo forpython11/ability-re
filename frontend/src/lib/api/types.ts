@@ -1,3 +1,4 @@
+// 这些类型与 Spring Boot 的响应 DTO 保持一致，用于在编译期检查字段名。
 export type ApiResponse<T> = {
   code: number;
   message: string;
@@ -29,6 +30,7 @@ export type LearningRecord = {
   category: string;
   environment: string;
   publishedAt: string;
+  // 后端把长文章拆成有顺序的正文块，前端再逐块渲染。
   blocks: Array<{
     type: string;
     heading: string;

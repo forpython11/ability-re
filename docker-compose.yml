@@ -1,4 +1,5 @@
 services:
+  # MySQL 保存站点内容；端口只绑定本机，避免数据库直接暴露到公网。
   mysql:
     image: mysql:8.4
     container_name: ability-re-mysql
@@ -22,6 +23,7 @@ services:
       timeout: 5s
       retries: 20
 
+  # Spring Boot 读取 MySQL，并通过只读挂载运行 CI 生成的 JAR。
   backend:
     image: eclipse-temurin:21-jre-alpine
     container_name: ability-re-backend
@@ -47,6 +49,7 @@ services:
       retries: 40
       start_period: 10s
 
+  # SvelteKit Node 服务负责 SSR，并通过 Docker 内部域名 backend 调用 API。
   frontend-app:
     image: node:22-alpine
     container_name: ability-re-frontend-app
@@ -71,6 +74,7 @@ services:
       retries: 20
       start_period: 5s
 
+  # 最外层 Nginx 是唯一公网入口，把页面和 /api 请求转发到内部服务。
   frontend:
     image: nginx:1.27-alpine
     container_name: ability-re-frontend
@@ -89,4 +93,5 @@ services:
       retries: 20
 
 volumes:
+  # 命名卷让 MySQL 容器重建后仍保留数据库数据。
   ability_re_mysql_data:

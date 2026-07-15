@@ -5,10 +5,12 @@ when:
     evaluate: 'COMPONENT == "backend"'
 
 concurrency:
+  # 前后端部署共用同一组锁，避免两个发布同时覆盖服务器文件。
   limit: 1
   group: ability-re-deploy
 
 steps:
+  # 先运行测试，再复用编译结果打出可执行 JAR。
   build:
     image: maven:3.9.9-eclipse-temurin-21
     environment:
@@ -20,6 +22,7 @@ steps:
       - mvn -B -ntp -s ../.woodpecker/maven-settings.xml -Dmaven.repo.local="$MAVEN_REPO_LOCAL" -DforkCount=0 test
       - mvn -B -ntp -s ../.woodpecker/maven-settings.xml -Dmaven.repo.local="$MAVEN_REPO_LOCAL" -DskipTests package
 
+  # 发布包只携带后端 JAR 和启动它所需的 Compose 配置。
   package:
     image: alpine:3.20
     depends_on:
@@ -30,6 +33,7 @@ steps:
       - tar -czf ability-re-backend-release.tar.gz dist/ability-re-backend.jar docker-compose.yml
       - tar -tzf ability-re-backend-release.tar.gz >/dev/null
 
+  # 通过 SSH 上传发布包，再由服务器上的脚本完成原子替换和健康检查。
   deploy:
     image: alpine:3.20
     depends_on:

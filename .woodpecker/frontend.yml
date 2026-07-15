@@ -5,10 +5,12 @@ when:
     evaluate: 'COMPONENT == "frontend"'
 
 concurrency:
+  # 与后端使用同一部署组，防止并发更新 docker-compose.yml。
   limit: 1
   group: ability-re-deploy
 
 steps:
+  # sync 生成路由类型，随后依次做类型检查、测试和 SSR 构建。
   build:
     image: node:22-alpine
     environment:
@@ -22,6 +24,7 @@ steps:
       - pnpm exec vitest run --minWorkers=1 --maxWorkers=1
       - pnpm build
 
+  # adapter-node 的 build 目录包含 Node 服务端、浏览器资源和启动入口。
   package:
     image: alpine:3.20
     depends_on:
@@ -32,6 +35,7 @@ steps:
       - tar -czf ability-re-frontend-release.tar.gz dist/frontend docker-compose.yml nginx.conf
       - tar -tzf ability-re-frontend-release.tar.gz >/dev/null
 
+  # Secret 只在 CI 运行时注入，不写进仓库或发布包。
   deploy:
     image: alpine:3.20
     depends_on:

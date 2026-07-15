@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+/** 通过完整 Spring 上下文验证 Flyway 数据、JPA 查询和 HTTP 响应能正确串联。 */
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -46,6 +47,7 @@ class SiteControllerTest {
 
     @Test
     void allowsFrontendCorsPreflight() throws Exception {
+        // 浏览器发送正式跨域请求前，会先用 OPTIONS 确认该来源是否被允许。
         mockMvc.perform(options("/api/site/home")
                         .header("Origin", "http://localhost:5173")
                         .header("Access-Control-Request-Method", "GET"))

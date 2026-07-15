@@ -1,14 +1,17 @@
+# Spring Boot 后端的生产/本地共用配置；敏感值全部从环境变量读取。
 spring:
   application:
     name: ability-re-backend
   lifecycle:
     timeout-per-shutdown-phase: 20s
   datasource:
+    # 冒号后的内容是本地默认值，部署环境可通过 DB_URL 等变量覆盖。
     url: ${DB_URL:jdbc:mysql://localhost:3306/ability_re?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true}
     username: ${DB_USERNAME:ability_re}
     password: ${DB_PASSWORD}
   jpa:
     hibernate:
+      # 表结构由 Flyway 管理，Hibernate 只校验实体和数据库是否一致。
       ddl-auto: validate
     open-in-view: false
     properties:
@@ -22,6 +25,7 @@ server:
   shutdown: graceful
 
 management:
+  # Kubernetes/Compose 使用这些端点区分“进程存活”和“已可接收流量”。
   endpoints:
     web:
       exposure:
@@ -39,4 +43,5 @@ management:
 
 app:
   cors:
+    # 多个允许来源使用逗号分隔，正式环境通过变量覆盖 localhost。
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}

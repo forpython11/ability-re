@@ -19,6 +19,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+/** 同时覆盖业务健康接口、Kubernetes 探针和数据库故障分支。 */
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -47,6 +48,7 @@ class HealthControllerTest {
 
     @Test
     void returnsServiceUnavailableWhenDatabaseIsDown() {
+        // 这里直接构造 mock，不必真的关闭测试数据库就能稳定复现故障。
         JdbcTemplate jdbcTemplate = mock(JdbcTemplate.class);
         when(jdbcTemplate.queryForObject("SELECT 1", Integer.class))
                 .thenThrow(new DataAccessResourceFailureException("database unavailable"));

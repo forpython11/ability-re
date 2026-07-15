@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+/** 首页“学习方向”卡片对应的数据库实体。 */
 @Entity
 @Table(name = "site_features")
 public class SiteFeature {
@@ -26,6 +27,7 @@ public class SiteFeature {
     @Column(name = "sort_order", nullable = false)
     private Integer sortOrder;
 
+    /** 仅供 JPA 使用。 */
     protected SiteFeature() {
     }
 

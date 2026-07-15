@@ -21,6 +21,7 @@
         <java.version>21</java.version>
     </properties>
 
+    <!-- Web/Validation 负责接口，JPA/Flyway/MySQL 负责持久化，Actuator 提供部署探针。 -->
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -54,6 +55,7 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
+            <!-- 测试使用内存数据库，不依赖开发机或生产 MySQL。 -->
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -63,6 +65,7 @@
         </dependency>
     </dependencies>
 
+    <!-- Spring Boot 插件把项目打包成可以直接 java -jar 运行的 JAR。 -->
     <build>
         <plugins>
             <plugin>

@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import Page from './+page.svelte';
 
+// 页面测试使用内存数据，确保失败时定位到模板，而不是网络环境。
 const data = {
   home: {
     hero: {
@@ -27,6 +28,7 @@ const data = {
 
 describe('landing page', () => {
   it('renders hero, feature cards and learning record entry', () => {
+    // 从用户能看到的标题、文字和链接验证首页，而不是依赖内部 DOM 结构。
     render(Page, { props: { data } });
 
     expect(screen.getByRole('heading', { name: '能力重构个人技术记录' })).toBeInTheDocument();

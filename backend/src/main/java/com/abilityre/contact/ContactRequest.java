@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+/** 联系表单原有的请求格式；注解声明浏览器输入进入业务前必须满足的约束。 */
 public record ContactRequest(
         @NotBlank @Size(max = 80) String name,
         @NotBlank @Email @Size(max = 160) String email,

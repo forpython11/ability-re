@@ -1,5 +1,6 @@
 import type { HomePage, LearningRecord } from '$lib/api/types';
 
+// 后端暂时不可用时，首页仍可用这份静态内容完成 SSR，而不是显示空白页。
 export const fallbackHomePage: HomePage = {
   hero: {
     title: '能力重构个人技术记录',
@@ -33,6 +34,7 @@ export const fallbackHomePage: HomePage = {
   ],
 };
 
+// 预留的文章兜底集合，以 slug 为键可以快速找到对应文章。
 export const fallbackLearningRecords: Record<string, LearningRecord> = {
   'kubernetes-minikube': {
     slug: 'kubernetes-minikube',

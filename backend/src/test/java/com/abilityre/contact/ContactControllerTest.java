@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+/** 验证停用后的联系接口始终拒绝写入，不会因为请求内容不同而重新开放。 */
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -37,6 +38,7 @@ class ContactControllerTest {
 
     @Test
     void ignoresInvalidPayloadWhenContactFormIsDisabled() throws Exception {
+        // 接口已整体停用，所以无效表单也应返回 410，而不是进入字段校验流程。
         mockMvc.perform(post("/api/contact")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""

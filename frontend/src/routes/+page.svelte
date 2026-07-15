@@ -6,8 +6,8 @@
     apiAvailable: boolean;
   };
 
+  // data 来自同目录的 +page.server.ts，SSR 和浏览器接管时使用同一份数据。
   let { data }: { data: PageData } = $props();
-
 </script>
 
 <svelte:head>
@@ -29,6 +29,7 @@
 </header>
 
 <main id="top">
+  <!-- 首屏介绍和站点主要技术方向。 -->
   <section class="hero">
     <div class="hero-copy">
       <p class="eyebrow">个人技术学习与项目展示</p>
@@ -52,6 +53,7 @@
     </div>
   </section>
 
+  <!-- features 由数据库配置，新增卡片不需要修改页面模板。 -->
   <section id="features" class="section">
     <div class="section-heading">
       <p class="eyebrow">Learning notes</p>
@@ -68,6 +70,7 @@
     </div>
   </section>
 
+  <!-- 首页只展示文章摘要，完整正文通过 slug 链接进入独立页面。 -->
   <section id="kubernetes-note" class="section learning-section">
     <div class="section-heading">
       <p class="eyebrow">Learning records</p>
@@ -87,6 +90,7 @@
     </div>
   </section>
 
+  <!-- 固定的站点定位和合规说明。 -->
   <section id="about" class="section split-section">
     <div>
       <p class="eyebrow">About</p>

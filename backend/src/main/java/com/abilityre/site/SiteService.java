@@ -4,6 +4,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/** 从多张内容表读取数据，并组装成前端页面需要的响应对象。 */
 @Service
 public class SiteService {
     private final SiteSectionRepository sectionRepository;
@@ -24,8 +25,11 @@ public class SiteService {
 
     @Transactional(readOnly = true)
     public HomePageResponse getHomePage() {
+        // Hero 是首页必要内容；缺失时直接报错，避免悄悄渲染一个不完整首页。
         SiteSection hero = sectionRepository.findBySectionKey("hero")
                 .orElseThrow(() -> new IllegalStateException("Hero section is missing"));
+
+        // 数据库实体不直接暴露给前端，先映射成稳定的接口 DTO。
         List<HomePageResponse.Feature> features = featureRepository.findAllByOrderBySortOrderAsc().stream()
                 .map(feature -> new HomePageResponse.Feature(
                         feature.getTitle(),
@@ -51,6 +55,8 @@ public class SiteService {
     public LearningRecordResponse getLearningRecord(String slug) {
         SiteLearningRecord record = learningRecordRepository.findBySlug(slug)
                 .orElseThrow(() -> new IllegalArgumentException("Learning record is missing: " + slug));
+
+        // 主表保存文章元信息，正文块按 sortOrder 单独读取后再拼装。
         List<LearningRecordResponse.Block> blocks = learningRecordBlockRepository.findAllByRecordOrderBySortOrderAsc(record)
                 .stream()
                 .map(block -> new LearningRecordResponse.Block(

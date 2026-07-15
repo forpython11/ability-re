@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 
+/** 学习记录的文章主表实体；正文内容拆分保存在 SiteLearningRecordBlock 中。 */
 @Entity
 @Table(name = "site_learning_records")
 public class SiteLearningRecord {
@@ -33,6 +34,7 @@ public class SiteLearningRecord {
     @Column(name = "published_at", nullable = false)
     private LocalDate publishedAt;
 
+    /** 仅供 JPA 使用。 */
     protected SiteLearningRecord() {
     }
 

@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
 
+/** 联系消息的数据库实体。表仍保留，用于兼容已有迁移，但公开写入接口已停用。 */
 @Entity
 @Table(name = "contact_messages")
 public class ContactMessage {
@@ -32,6 +33,7 @@ public class ContactMessage {
     @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
     private OffsetDateTime createdAt;
 
+    /** JPA 通过反射创建实体时需要无参构造器，业务代码不应直接调用。 */
     protected ContactMessage() {
     }
 

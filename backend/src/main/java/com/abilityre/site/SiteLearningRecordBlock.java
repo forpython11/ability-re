@@ -9,6 +9,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+/** 学习记录的一个正文块；多条记录按 sortOrder 拼成完整文章。 */
 @Entity
 @Table(name = "site_learning_record_blocks")
 public class SiteLearningRecordBlock {
@@ -18,6 +19,7 @@ public class SiteLearningRecordBlock {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "record_id", nullable = false)
+    // 多个正文块属于同一篇学习记录，数据库外键保证文章删除时关系仍一致。
     private SiteLearningRecord record;
 
     @Column(name = "block_type", nullable = false)
@@ -35,6 +37,7 @@ public class SiteLearningRecordBlock {
     @Column(name = "sort_order", nullable = false)
     private Integer sortOrder;
 
+    /** 仅供 JPA 使用。 */
     protected SiteLearningRecordBlock() {
     }
 

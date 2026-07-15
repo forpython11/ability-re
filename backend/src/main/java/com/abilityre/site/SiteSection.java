@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+/** 首页大区块的数据库实体，例如 hero 和 about。 */
 @Entity
 @Table(name = "site_sections")
 public class SiteSection {
@@ -26,6 +27,7 @@ public class SiteSection {
     @Column(name = "sort_order", nullable = false)
     private Integer sortOrder;
 
+    /** 仅供 JPA 使用。 */
     protected SiteSection() {
     }
 
