@@ -137,7 +137,7 @@ pnpm build
 
 ## 构建 Kubernetes 本地镜像
 
-前后端 Dockerfile 会把运行时和应用产物打包成不可变镜像，供 Minikube 和未来 ACK 使用。当前线上 Compose 仍使用 JAR/SSR 目录挂载，不受这些命令影响。
+前后端 Dockerfile 会把运行时和应用产物打包成不可变镜像，当前只供 Mac 本地 Minikube 学习验证。现有 2 GiB ECS 继续使用 JAR/SSR 目录挂载的 Compose 部署，不安装 Kubernetes；未来只有单独准备 ACK 或新集群资源时才评估生产迁移。
 
 ```bash
 cd ability-re

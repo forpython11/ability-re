@@ -1,8 +1,9 @@
 # Ability Re 部署与本地 Kubernetes 清单
 
 > 当前线上环境：Docker Compose 已部署到 `http://8.136.60.154:18081`，并通过宿主机 Nginx 将 `http://study.cinney.top/` 反向代理到 `127.0.0.1:18081`。
-> 当前目标：完成个人备案前置处理，备案通过前暂停 `cinney.top`、`www.cinney.top` 等备案要求关闭的域名解析；本地 Kubernetes 实验不影响线上环境。
-> 后续目标：备案通过后恢复域名解析、签发 HTTPS 证书，再继续本地 Helm Chart 验证并迁移到阿里云 ACK 或 kubeadm 集群。
+> 当前目标：线上继续使用 Docker Compose；Mac 本地使用 Minikube 和 Helm 学习 Kubernetes，两套环境互不影响。
+> 服务器边界：现有 ECS 只有约 2 GiB 内存，不安装 kubeadm、kubelet、Minikube 或其他 Kubernetes 组件，也不承载 Kubernetes 控制面。
+> 可选远期方向：只有未来单独购买 ACK 或准备新的高配置集群资源时，才重新评估生产 Kubernetes；这不属于当前待办。
 > Kubernetes 当前进度：Minikube 节点 Ready，Nginx 冒烟资源已清理；前后端 Dockerfile 和本地镜像构建验证已完成，下一步是按当前 Git SHA 重建镜像、加载 Minikube 并创建 Helm Chart。
 
 ## 1. 保持当前线上环境可用
@@ -25,9 +26,10 @@
 - [ ] 确认服务器上的 `3306`、`18080` 只监听 `127.0.0.1`
 - [x] 流水线已固化 Compose 重建命令，不再依赖 `deploy_restart_cmd` Secret
 - [x] 前后端已改为串行构建，并限制 Maven/Node 内存，避免 2 GB ECS 资源耗尽
+- [x] 明确现有 2 GB ECS 只运行 Docker Compose，不安装 Kubernetes
 - [ ] 分别手动运行前后端 Woodpecker 流水线，确认线上 Compose 可以完整更新
 
-本地 Kubernetes 建设期间不关闭、不修改线上 Docker Compose。公网入口当前包括前端调试端口 `18081` 和 Nginx `80`；后端 `18080` 和 MySQL `3306` 不开放。由于杭州 ECS 未备案域名访问会被阿里云返回 `Non-compliance ICP Filing` 的 403 页面，Let's Encrypt HTTP-01 校验暂时不能通过，HTTPS 配置需要等备案通过后再继续。
+本地 Kubernetes 建设期间不关闭、不修改线上 Docker Compose，也不向现有 ECS 安装任何 Kubernetes 组件。公网入口当前包括前端调试端口 `18081` 和 Nginx `80`；后端 `18080` 和 MySQL `3306` 不开放。由于杭州 ECS 未备案域名访问会被阿里云返回 `Non-compliance ICP Filing` 的 403 页面，Let's Encrypt HTTP-01 校验暂时不能通过，HTTPS 配置需要等备案通过后再继续。
 
 ### 生产数据库密码轮换
 
@@ -312,20 +314,17 @@ Woodpecker Agent 在阿里云服务器上，默认无法稳定访问位于家庭
 - [ ] 本地 Minikube 使用 `helm upgrade` 手工部署
 - [x] 已确认 Git 中没有 kubeconfig、真实 Secret 或本地数据库密码
 - [ ] 可以新增本地脚本统一执行镜像构建、加载和 Helm upgrade
-- [ ] 云端 Kubernetes 准备好后，再启用 Woodpecker Kubernetes CD
+- [x] Woodpecker 不连接本地 Minikube，也不向现有 ECS 执行 Kubernetes CD
 
-## 10. 后续迁移到云端 Kubernetes
+## 10. 生产 Kubernetes 规划（当前暂停）
 
-本地验收通过后再执行以下阶段：
+现有 2 GB ECS 明确排除 Kubernetes，继续使用当前 Compose 部署。以下内容不是当前待办，仅在未来获得独立 ACK 或新集群资源后重新立项：
 
-- [ ] 选择阿里云 ACK，或独立 ECS 上的 `kubeadm + containerd`
-- [ ] 创建阿里云 ACR，并推送 commit SHA 镜像
-- [ ] 使用 RDS MySQL，完成备份、恢复和数据核对
-- [ ] 使用 `values-prod.yaml` 替换本地镜像、存储和域名配置
-- [ ] 为 Woodpecker 创建 Namespace 级别的 ServiceAccount 和 RBAC
-- [ ] 使用 `helm upgrade --install --atomic --wait` 自动部署
-- [ ] 配置域名、HTTPS、健康检查和回滚
-- [ ] 云端稳定运行 24 小时后，再关闭旧 Compose 公网入口
+- 单独评估 ACK 成本，或准备不与当前生产 ECS 共用资源的新集群节点。
+- 创建 ACR，并推送 commit SHA 镜像。
+- 使用 RDS MySQL，完成备份、恢复和数据核对。
+- 为 Woodpecker 配置最小权限 RBAC 和 Kubernetes CD。
+- 在测试域名完成 HTTPS、健康检查、回滚和稳定性验证后，再单独制定生产切流计划。
 
 ## 11. 本地阶段验收标准
 

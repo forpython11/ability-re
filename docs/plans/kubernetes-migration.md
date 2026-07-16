@@ -2,7 +2,7 @@
 
 ## 需求摘要
 
-先在当前 Mac 上建立完整的本地 Kubernetes 开发环境，验证镜像、Helm、Deployment、Service、PVC、健康检查、滚动更新和回滚。当前 ECS Docker Compose 环境继续作为线上服务，不在本地验证阶段迁移生产流量或生产数据。
+在当前 Mac 上建立完整的本地 Kubernetes 开发环境，验证镜像、Helm、Deployment、Service、PVC、健康检查、滚动更新和回滚。现有 2 GiB ECS 永久保持 Docker Compose，不安装 Kubernetes，也不迁移生产流量或生产数据。
 
 当前事实：
 
@@ -12,6 +12,7 @@
 - 当前线上后端仍通过 JAR bind mount 运行，见 `docker-compose.yml` 的 `backend` 服务。
 - 当前线上前端仍通过 adapter-node SSR 目录 bind mount 运行，Nginx 作为独立网关，见 `docker-compose.yml` 的 `frontend-app`、`frontend` 服务。
 - 当前 Woodpecker Agent 位于远端 ECS，前后端工作流通过 SSH 部署 Compose，不适合直接访问家庭网络内的 Minikube API。
+- 现有 ECS 内存不足以同时承担生产容器和 Kubernetes 组件，已明确排除在 Kubernetes 安装目标之外。
 
 ## 架构决策
 
@@ -27,7 +28,7 @@
 - MySQL StatefulSet + PVC：仅保存本地测试数据。
 - `kubectl port-forward`：第一条稳定访问路径；Ingress 作为后续验证项。
 
-第二阶段才迁移到阿里云 Kubernetes，并引入 ACR、RDS、Woodpecker CD、域名和 HTTPS。
+生产 Kubernetes 当前暂停。只有未来单独购买 ACK 或准备新的高配置集群资源时，才重新评估 ACR、RDS、Woodpecker CD 和生产流量迁移。
 
 ## 实施阶段
 
@@ -36,6 +37,7 @@
 1. 保持 `8.136.60.154:18081` 的 Compose 服务运行。
 2. 更新 Woodpecker Compose 重启命令并手动验证一次组件部署。
 3. 本地实验不连接线上 MySQL，不修改线上安全组和域名。
+4. 不在现有 2 GiB ECS 安装 kubeadm、kubelet、Minikube 或其他 Kubernetes 组件。
 
 ### 阶段 1：本地工具与集群
 
@@ -79,11 +81,13 @@ Nginx 不放进前端 SSR 镜像。Helm 使用官方 Nginx 镜像创建独立网
 1. Woodpecker 继续运行现有测试和 Compose 部署。
 2. 不把本地 kubeconfig 或 Minikube API 暴露给公网 Woodpecker。
 3. 本地部署使用手工 Helm 命令或仓库内不含 Secret 的本地脚本。
-4. 云端集群建立后，再把镜像推送和 Helm upgrade 接入 Woodpecker。
+4. Woodpecker 继续只部署线上 Compose，不连接本地 Minikube。
 
-### 阶段 6：未来云端迁移
+### 阶段 6：可选生产 Kubernetes（当前暂停）
 
-1. 选择 ACK 或独立 kubeadm 集群。
+该阶段不属于当前实施范围。只有获得独立 ACK 或新集群资源后才重新立项：
+
+1. 选择 ACK 或不与当前 ECS 共用资源的新集群。
 2. 使用 ACR 保存 commit SHA 镜像。
 3. 使用 RDS MySQL 并完成备份恢复演练。
 4. 使用同一 Helm Chart 的 `values-prod.yaml` 部署。
@@ -108,6 +112,7 @@ Nginx 不放进前端 SSR 镜像。Helm 使用官方 Nginx 镜像创建独立网
 - **数据误删**：本地只使用测试数据；`minikube delete` 前明确确认不需要 PVC 数据。
 - **误连生产库**：`values-local.yaml` 使用独立 Secret 和集群内 MySQL Service，不接受线上 JDBC 默认值。
 - **远端 CI 暴露本机**：本地阶段不上传 kubeconfig、不开放 Kubernetes API、不让 Woodpecker 部署 Minikube。
+- **小内存 ECS 资源耗尽**：现有 ECS 只运行 Compose，不安装任何 Kubernetes 组件；本地 Minikube 使用 Mac 的 Docker Desktop 资源。
 - **代理出现 502**：Helm 后端 Service 名固定为 `backend`，并用端到端 `/api/health` 验证 nginx 到后端的 DNS 与端口契约。
 - **本地与云端差异**：所有环境差异集中在 values 文件，模板保持一致，并在云端切流量前重新执行完整验收。
 
