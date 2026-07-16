@@ -15,6 +15,8 @@
 
 | 文件 | 作用 | 通常什么时候修改 |
 | --- | --- | --- |
+| `frontend/Dockerfile` | 使用 Node 22 和 pnpm 构建 adapter-node SSR，并以非 root 用户运行生产镜像 | 调整前端镜像、Node 运行时或容器启动方式时 |
+| `frontend/.dockerignore` | 排除 node_modules、构建产物、真实环境变量和日志 | Docker 构建上下文需要增删文件时 |
 | `frontend/.env.example` | 前端服务端环境变量模板，指定内部后端 API 地址 | 后端地址或环境变量名变化时 |
 | `frontend/package.json` | 定义依赖和 `dev`、`lint`、`test`、`build` 命令 | 增删依赖或 npm 脚本时 |
 | `frontend/pnpm-lock.yaml` | 锁定依赖的精确版本，保证本地和 CI 安装一致 | `pnpm install` 更新依赖时自动变化，不手工编辑 |
@@ -75,7 +77,8 @@
 | 增加后端返回字段 | `frontend/src/lib/api/types.ts` | server load 和页面组件 |
 | 增加一个页面 | `frontend/src/routes/` 下的新路由 | 样式和页面测试 |
 | 增加一篇文章入口 | 动态文章路由 | 后端文章数据和首页列表 |
-| 修改前端部署 | `.woodpecker/frontend.yml` | `deploy-frontend.sh`、Compose、Nginx |
+| 修改前端镜像 | `frontend/Dockerfile` | `.dockerignore`、Kubernetes values |
+| 修改前端线上部署 | `.woodpecker/frontend.yml` | `deploy-frontend.sh`、Compose、Nginx |
 
 ## 推荐阅读顺序
 

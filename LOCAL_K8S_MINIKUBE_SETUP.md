@@ -529,3 +529,5 @@ kubectl get pods             ✅
 nginx Pod 1/1 Running        ✅
 minikube service nginx --url ✅
 ```
+
+以上 Nginx 状态是冒烟测试当时的结果。验证完成后已经删除测试 Deployment 和 Service；当前默认命名空间只保留 Kubernetes 内置 Service，DaoCloud Nginx 镜像继续保留在 Minikube 中供排查复用。

@@ -26,7 +26,7 @@ ability-re/
 | `.env.example` | Compose 环境变量模板，包含 MySQL 密码占位值和前端公开地址 | 新增公共环境变量或部署地址变化时 |
 | `.gitignore` | 忽略依赖、构建产物、真实 `.env` 和日志 | 新增不应提交的本地文件时 |
 | `.hermes_continuation.md` | 历史 AI 协作上下文，不参与编译和运行 | 通常不需要修改 |
-| `AGENTS.md` | 约定提交信息、推送说明和验证习惯 | 协作规范变化时 |
+| `AGENTS.md` | 约定提交信息、推送说明、验证习惯和代码注释规范 | 协作规范变化时 |
 | `README.md` | 项目首页，包含技术栈、启动方式和文档入口 | 使用方式或文档入口变化时 |
 | `DEPLOYMENT_CHECKLIST.md` | 当前线上状态和后续部署检查项 | 服务器状态或部署待办变化时 |
 | `LOCAL_K8S_MINIKUBE_SETUP.md` | 本地 Minikube、kubectl 和 Helm 的安装验证记录 | 本地 Kubernetes 环境变化时 |
@@ -53,6 +53,7 @@ ability-re/
 | --- | --- |
 | 修改页面、样式或前端取数 | [前端文件导览](frontend.md) |
 | 修改 API、数据库或后端测试 | [后端文件导览](backend.md) |
+| 修改容器镜像构建 | 前后端文件导览中的 `Dockerfile`、`.dockerignore` |
 | 修改容器连接、端口或公网代理 | `docker-compose.yml`、`nginx.conf` |
 | 修改自动部署 | 对应的前端或后端文件导览中的 Woodpecker 部分 |
 | 理解完整请求链路 | 前端架构图和后端架构图 |

@@ -3,6 +3,7 @@
 > 当前线上环境：Docker Compose 已部署到 `http://8.136.60.154:18081`，并通过宿主机 Nginx 将 `http://study.cinney.top/` 反向代理到 `127.0.0.1:18081`。
 > 当前目标：完成个人备案前置处理，备案通过前暂停 `cinney.top`、`www.cinney.top` 等备案要求关闭的域名解析；本地 Kubernetes 实验不影响线上环境。
 > 后续目标：备案通过后恢复域名解析、签发 HTTPS 证书，再继续本地 Helm Chart 验证并迁移到阿里云 ACK 或 kubeadm 集群。
+> Kubernetes 当前进度：Minikube 节点 Ready，Nginx 冒烟资源已清理；前后端 Dockerfile 和本地镜像构建验证已完成，下一步是按当前 Git SHA 重建镜像、加载 Minikube 并创建 Helm Chart。
 
 ## 1. 保持当前线上环境可用
 
@@ -24,7 +25,7 @@
 - [ ] 确认服务器上的 `3306`、`18080` 只监听 `127.0.0.1`
 - [x] 流水线已固化 Compose 重建命令，不再依赖 `deploy_restart_cmd` Secret
 - [x] 前后端已改为串行构建，并限制 Maven/Node 内存，避免 2 GB ECS 资源耗尽
-- [ ] 再推送一次提交，确认线上 Compose 可以完全自动更新
+- [ ] 分别手动运行前后端 Woodpecker 流水线，确认线上 Compose 可以完整更新
 
 本地 Kubernetes 建设期间不关闭、不修改线上 Docker Compose。公网入口当前包括前端调试端口 `18081` 和 Nginx `80`；后端 `18080` 和 MySQL `3306` 不开放。由于杭州 ECS 未备案域名访问会被阿里云返回 `Non-compliance ICP Filing` 的 403 页面，Let's Encrypt HTTP-01 校验暂时不能通过，HTTPS 配置需要等备案通过后再继续。
 
@@ -108,24 +109,37 @@ kubectl get pods
 minikube service nginx --url
 ```
 
-当前验证结果：`nginx` Pod 已达到 `1/1 Running`，`minikube service nginx --url` 已输出本地访问地址。
+当前验证结果：`nginx` Pod 曾达到 `1/1 Running`，`minikube service nginx --url` 成功输出本地访问地址；冒烟完成后已删除 Nginx Deployment 和 Service，默认命名空间只保留 Kubernetes 内置 Service。
 
 注意：本机启动 Minikube 时不要加 `--image-mirror-country=cn` 或 `--image-repository=registry.cn-hangzhou.aliyuncs.com/google_containers`，否则会触发阿里云 OSS Kubernetes release `.sha256` 文件 404。Docker Hub 拉业务镜像可能超时，测试镜像优先使用国内代理并通过 `minikube image load` 导入。
 
 ## 3. 应用镜像化
 
-- [ ] 新增 `backend/Dockerfile`
-- [ ] 后端使用 Java 21 多阶段构建，运行阶段只包含 JRE
-- [ ] 后端容器使用非 root 用户
-- [ ] 新增 `frontend/Dockerfile`
-- [ ] 前端使用 Node 22 + pnpm 构建，运行阶段使用 nginx
-- [ ] 新增 `.dockerignore`，排除 `.git`、`node_modules`、`target`、`build`、`.env` 和本地缓存
-- [ ] 构建本地镜像：
+- [x] 新增 `backend/Dockerfile`
+- [x] 后端使用 Java 21 多阶段构建，运行阶段只包含 JRE
+- [x] 后端容器使用非 root 用户 `abilityre`
+- [x] 新增 `frontend/Dockerfile`
+- [x] 前端使用 Node 22 + pnpm 构建，并通过 Node 非 root 用户运行 adapter-node SSR
+- [x] 新增前后端 `.dockerignore`，排除 `.git`、`node_modules`、`target`、`build`、`.env` 和本地缓存
+- [x] 验证前后端镜像可以成功构建；后端镜像构建执行 8 个测试，前端镜像首页返回 HTTP 200
+- [ ] 使用当前 Git SHA 重新构建待部署镜像：
 
 ```bash
 TAG=$(git rev-parse --short HEAD)
 docker build -t "ability-re-backend:$TAG" backend
 docker build -t "ability-re-frontend:$TAG" frontend
+```
+
+Docker Hub 在当前网络下超时时，可以通过 Dockerfile 已提供的构建参数改用镜像代理，不把代理地址写死在镜像定义中：
+
+```bash
+docker build \
+  --build-arg MAVEN_IMAGE=docker.1panel.live/library/maven:3.9.9-eclipse-temurin-21 \
+  --build-arg JRE_IMAGE=docker.1panel.live/library/eclipse-temurin:21-jre-alpine \
+  -t "ability-re-backend:$TAG" backend
+docker build \
+  --build-arg NODE_IMAGE=docker.1panel.live/library/node:22-alpine \
+  -t "ability-re-frontend:$TAG" frontend
 ```
 
 - [ ] 将镜像加载进 Minikube：
@@ -158,8 +172,11 @@ deploy/
             ├── mysql-pvc.yaml
             ├── backend-deployment.yaml
             ├── backend-service.yaml
-            ├── frontend-deployment.yaml
-            ├── frontend-service.yaml
+            ├── frontend-app-deployment.yaml
+            ├── frontend-app-service.yaml
+            ├── gateway-deployment.yaml
+            ├── gateway-service.yaml
+            ├── nginx-configmap.yaml
             ├── ingress.yaml
             ├── configmap.yaml
             └── secret.example.yaml
@@ -168,15 +185,16 @@ deploy/
 - [ ] 创建 Namespace：`ability-re`
 - [ ] MySQL 使用 StatefulSet、ClusterIP Service 和 PVC
 - [ ] 后端使用 Deployment 和 ClusterIP Service，Service 名固定为 `backend`、端口固定为 `18080`，与 `nginx.conf` 保持一致
-- [ ] 前端使用 Deployment 和 ClusterIP Service
+- [ ] SvelteKit SSR 使用 Deployment 和 ClusterIP Service，Service 名固定为 `frontend-app`、端口固定为 `3000`
+- [ ] Nginx 网关使用独立 Deployment 和 ClusterIP Service，并通过 ConfigMap 挂载 `nginx.conf`
 - [ ] 后端 liveness 使用 `/actuator/health/liveness`
 - [ ] 后端 readiness 使用 `/actuator/health/readiness`
-- [ ] 前端 probe 使用 `/`
-- [ ] 前后端配置 CPU、内存 requests 和 limits
+- [ ] SvelteKit SSR 和 Nginx 网关 probe 使用 `/`
+- [ ] 后端、SvelteKit SSR、Nginx 网关和 MySQL 配置 CPU、内存 requests 和 limits
 - [ ] 非敏感配置放入 ConfigMap
-- [ ] 数据库密码通过预先创建的 `ability-re-secrets` Secret 注入，不通过 Helm `--set` 传值
+- [ ] MySQL 业务密码和 root 密码通过预先创建的 `ability-re-secrets` Secret 注入，不通过 Helm `--set` 传值
 - [ ] `secret.example.yaml` 只保留占位符
-- [ ] `/api` 通过前端 nginx 或 Ingress 转发到 backend Service
+- [ ] `/api` 由 Nginx 网关转发到 backend Service，其他请求转发到 frontend-app Service
 - [ ] 校验 Helm Chart：
 
 ```bash
@@ -191,7 +209,7 @@ helm template ability-re deploy/helm/ability-re \
 本地 Minikube 只使用测试数据，不直接连接线上 MySQL。
 
 - [ ] 为本地 MySQL 生成独立密码
-- [ ] 使用 Kubernetes Secret 注入数据库密码
+- [ ] 使用 Kubernetes Secret 注入 MySQL 业务密码和 root 密码
 - [ ] 使用 PVC 保存本地测试数据
 - [ ] 验证 Minikube 重启后数据仍然存在
 - [ ] 明确接受 `minikube delete` 会删除本地集群和本地测试数据
@@ -205,10 +223,13 @@ helm template ability-re deploy/helm/ability-re \
 kubectl create namespace ability-re --dry-run=client -o yaml | kubectl apply -f -
 read -s "LOCAL_DB_PASSWORD?Local MySQL password: "
 echo
+read -s "LOCAL_DB_ROOT_PASSWORD?Local MySQL root password: "
+echo
 kubectl -n ability-re create secret generic ability-re-secrets \
   --from-literal=mysql-password="$LOCAL_DB_PASSWORD" \
+  --from-literal=mysql-root-password="$LOCAL_DB_ROOT_PASSWORD" \
   --dry-run=client -o yaml | kubectl apply -f -
-unset LOCAL_DB_PASSWORD
+unset LOCAL_DB_PASSWORD LOCAL_DB_ROOT_PASSWORD
 ```
 
 - [ ] 安装本地 release：
@@ -230,6 +251,8 @@ helm upgrade --install ability-re deploy/helm/ability-re \
 kubectl -n ability-re get pods,svc,pvc
 kubectl -n ability-re get events --sort-by=.lastTimestamp
 kubectl -n ability-re logs deployment/ability-re-backend
+kubectl -n ability-re logs deployment/ability-re-frontend-app
+kubectl -n ability-re logs deployment/ability-re-gateway
 ```
 
 - [ ] 所有 Pod 达到 Ready，重启次数为 0
@@ -237,7 +260,7 @@ kubectl -n ability-re logs deployment/ability-re-backend
 - [ ] 首次访问先使用稳定的端口转发：
 
 ```bash
-kubectl -n ability-re port-forward service/ability-re-frontend 18081:80
+kubectl -n ability-re port-forward service/ability-re-gateway 18081:80
 ```
 
 - [ ] 浏览器访问 `http://127.0.0.1:18081`
@@ -246,7 +269,8 @@ kubectl -n ability-re port-forward service/ability-re-frontend 18081:80
 
 ## 7. 验证 Kubernetes 能力
 
-- [ ] 删除一个前端 Pod，确认 Deployment 在 5 分钟内自动恢复
+- [ ] 删除一个 SvelteKit SSR Pod，确认 Deployment 在 5 分钟内自动恢复
+- [ ] 删除一个 Nginx 网关 Pod，确认 Deployment 在 5 分钟内自动恢复
 - [ ] 删除一个后端 Pod，确认 Deployment 在 5 分钟内自动恢复
 - [ ] 修改镜像标签并执行 Helm upgrade，确认滚动更新成功
 - [ ] 执行一次 Helm rollback：
@@ -284,9 +308,9 @@ kubectl -n traefik get pods,svc
 
 Woodpecker Agent 在阿里云服务器上，默认无法稳定访问位于家庭网络和笔记本中的 Minikube API。因此本地阶段不把 kubeconfig 上传到 Woodpecker，也不做远程自动部署。
 
-- [ ] Woodpecker 继续负责现有代码检查和线上 Compose 部署
+- [x] Woodpecker 继续负责现有代码检查和线上 Compose 部署
 - [ ] 本地 Minikube 使用 `helm upgrade` 手工部署
-- [ ] Git 中不提交 kubeconfig、真实 Secret 或本地数据库密码
+- [x] 已确认 Git 中没有 kubeconfig、真实 Secret 或本地数据库密码
 - [ ] 可以新增本地脚本统一执行镜像构建、加载和 Helm upgrade
 - [ ] 云端 Kubernetes 准备好后，再启用 Woodpecker Kubernetes CD
 
@@ -305,15 +329,15 @@ Woodpecker Agent 在阿里云服务器上，默认无法稳定访问位于家庭
 
 ## 11. 本地阶段验收标准
 
-- [ ] Docker Desktop、kubectl、Minikube、Helm 均可正常运行
-- [ ] Minikube 节点为 Ready
-- [ ] 前端、后端、MySQL Pod 均 Ready 且 30 分钟内无异常重启
+- [x] Docker Desktop、kubectl、Minikube、Helm 均可正常运行
+- [x] Minikube 节点为 Ready，默认 StorageClass 可用
+- [ ] Nginx 网关、SvelteKit SSR、后端、MySQL Pod 均 Ready 且 30 分钟内无异常重启
 - [ ] MySQL PVC 为 Bound，Minikube stop/start 后测试数据保留
 - [ ] 首页、`/api/health` 均通过，且页面无联系表单、注册、支付或在线交易入口
-- [ ] 删除前后端 Pod 后均能在 5 分钟内恢复
+- [ ] 删除 Nginx 网关、SvelteKit SSR 或后端 Pod 后均能在 5 分钟内恢复
 - [ ] Helm upgrade 和 rollback 均成功
 - [ ] Helm lint、template 和 dry-run 均成功
-- [ ] 仓库中不存在真实密码、私钥或 kubeconfig
+- [x] 仓库中不存在真实密码、私钥或 kubeconfig
 - [ ] 线上 `http://8.136.60.154:18081` 在整个本地实验期间保持可用
 
 完整设计说明见 `docs/plans/kubernetes-migration.md`。

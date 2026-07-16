@@ -23,9 +23,10 @@
 
 ```text
 ability-re/
-├── frontend/                 # SvelteKit 个人技术站前端
-├── backend/                  # Spring Boot API 后端
-├── docker-compose.yml        # MySQL 本地数据库
+├── frontend/                 # SvelteKit SSR 前端及其 Dockerfile
+├── backend/                  # Spring Boot API 及其 Dockerfile
+├── docker-compose.yml        # 线上 MySQL、后端、前端和 Nginx 编排
+├── DEPLOYMENT_CHECKLIST.md   # 线上部署与本地 Kubernetes 进度
 ├── README.md
 └── .hermes_continuation.md
 ```
@@ -80,11 +81,12 @@ export DB_PASSWORD='<strong-password>'
 mvn spring-boot:run
 ```
 
-后端启动时 Flyway 会自动执行数据库迁移：
+后端启动时 Flyway 会按版本号自动执行数据库迁移：
 
 ```text
-backend/src/main/resources/db/migration/V1__init_schema.sql
-backend/src/main/resources/db/migration/V2__personal_site_content.sql
+backend/src/main/resources/db/migration/V1__*.sql
+...
+backend/src/main/resources/db/migration/V5__*.sql
 ```
 
 并创建：
@@ -93,6 +95,8 @@ backend/src/main/resources/db/migration/V2__personal_site_content.sql
 site_sections
 site_features
 contact_messages
+site_learning_records
+site_learning_record_blocks
 ```
 
 后端接口：
@@ -130,6 +134,32 @@ cd frontend
 pnpm test
 pnpm build
 ```
+
+## 构建 Kubernetes 本地镜像
+
+前后端 Dockerfile 会把运行时和应用产物打包成不可变镜像，供 Minikube 和未来 ACK 使用。当前线上 Compose 仍使用 JAR/SSR 目录挂载，不受这些命令影响。
+
+```bash
+cd ability-re
+TAG=$(git rev-parse --short HEAD)
+
+docker build -t "ability-re-backend:$TAG" backend
+docker build -t "ability-re-frontend:$TAG" frontend
+```
+
+Docker Hub 在当前网络下超时时，可以使用 Dockerfile 的构建参数临时切换镜像代理：
+
+```bash
+docker build \
+  --build-arg MAVEN_IMAGE=docker.1panel.live/library/maven:3.9.9-eclipse-temurin-21 \
+  --build-arg JRE_IMAGE=docker.1panel.live/library/eclipse-temurin:21-jre-alpine \
+  -t "ability-re-backend:$TAG" backend
+docker build \
+  --build-arg NODE_IMAGE=docker.1panel.live/library/node:22-alpine \
+  -t "ability-re-frontend:$TAG" frontend
+```
+
+完整 Minikube 加载和 Helm 待办见 [DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md)。
 
 ## 手动部署
 
