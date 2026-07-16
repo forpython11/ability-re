@@ -29,17 +29,24 @@ cd "$deploy_path"
 # 前后端发布共享同一把文件锁，最多等待 5 分钟。
 exec 9>"$deploy_path/.deploy.lock"
 command -v flock >/dev/null
+date '+%F %T before flock'
 flock -w 300 9
+date '+%F %T after flock'
 
 install -m 644 "$staging/docker-compose.yml" docker-compose.yml
 # 先写 .next 再改名，避免复制中断留下半个 JAR。
 install -m 644 "$staging/dist/ability-re-backend.jar" dist/ability-re-backend.jar.next
 mv -f dist/ability-re-backend.jar.next dist/ability-re-backend.jar
 
+date '+%F %T mysql compose start'
 docker compose up -d mysql
+date '+%F %T mysql compose end'
+date '+%F %T backend compose start'
 docker compose up -d --force-recreate backend
+date '+%F %T backend compose end'
 
 # 最多等待 120 秒，两个健康接口都成功才把发布标记为完成。
+date '+%F %T health check start'
 i=1
 while [ "$i" -le 60 ]; do
   if curl --fail --silent --show-error http://127.0.0.1:18080/actuator/health/readiness >/dev/null &&

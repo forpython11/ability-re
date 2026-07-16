@@ -59,5 +59,10 @@ steps:
       - printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519
       - chmod 600 ~/.ssh/id_ed25519
       - install -m 600 .woodpecker/known_hosts ~/.ssh/known_hosts
+      # 打印上传和远端执行的边界时间，定位 deploy 阶段慢在网络传输还是服务器脚本。
+      - date '+%F %T scp start'
       - scp -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -i ~/.ssh/id_ed25519 -P "${DEPLOY_PORT:-22}" ability-re-backend-release.tar.gz .woodpecker/deploy-backend.sh "$DEPLOY_USER@$DEPLOY_HOST:/tmp/"
+      - date '+%F %T scp end'
+      - date '+%F %T remote deploy start'
       - ssh -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -i ~/.ssh/id_ed25519 -p "${DEPLOY_PORT:-22}" "$DEPLOY_USER@$DEPLOY_HOST" sh /tmp/deploy-backend.sh "$DEPLOY_PATH" /tmp/ability-re-backend-release.tar.gz
+      - date '+%F %T remote deploy end'
