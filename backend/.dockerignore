@@ -1,0 +1,14 @@
+# 本地构建产物由镜像构建阶段重新生成，不发送给 Docker daemon。
+target/
+
+# 环境变量文件可能包含真实密码，只保留可公开的示例文件。
+.env
+.env.*
+!.env.example
+
+# 排除版本控制、编辑器状态和运行日志，缩小构建上下文。
+.git/
+.idea/
+.vscode/
+*.log
+.DS_Store

@@ -1,0 +1,19 @@
+# 依赖和构建产物由 Docker 构建阶段重新生成，避免发送大量本地文件。
+node_modules/
+build/
+.svelte-kit/
+.vite/
+coverage/
+.pnpm-store/
+
+# 私有环境变量只在容器运行时注入，不写入镜像。
+.env
+.env.*
+!.env.example
+
+# 排除版本控制、编辑器状态和运行日志，缩小构建上下文。
+.git/
+.idea/
+.vscode/
+*.log
+.DS_Store
