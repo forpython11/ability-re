@@ -26,9 +26,9 @@ export const fallbackHomePage: HomePage = {
   learningRecords: [
     {
       slug: 'kubernetes-minikube',
-      title: '从零跑通本地 Kubernetes：kubectl、Minikube、Helm 与 Nginx 部署',
+      title: '从零跑通部署入口：Minikube、Nginx 反向代理、域名解析与备案排查',
       summary:
-        '记录一次从 kubectl、Minikube、Helm 安装，到本地 Kubernetes 集群启动、Nginx 部署和镜像拉取问题排查的完整过程。',
+        '把本机 Kubernetes 工具链、线上 Docker Compose、域名解析、Nginx 反向代理和个人备案限制串起来，记录每一步的结果和排查过程。',
       category: 'Kubernetes learning record',
     },
   ],
@@ -38,11 +38,12 @@ export const fallbackHomePage: HomePage = {
 export const fallbackLearningRecords: Record<string, LearningRecord> = {
   'kubernetes-minikube': {
     slug: 'kubernetes-minikube',
-    title: '从零跑通本地 Kubernetes：kubectl、Minikube、Helm 与 Nginx 部署',
+    title: '从零跑通部署入口：Minikube、Nginx 反向代理、域名解析与备案排查',
     summary:
-      '这是一篇真实学习记录：目标不是背概念，而是在本机把 Kubernetes 工具链装好，启动一个可用集群，部署一个 Nginx 应用，并在遇到网络、镜像和 Pod 状态问题时一步步定位原因。',
+      '这是一篇真实学习记录：目标不是背概念，而是把本机 Kubernetes 工具链、线上 Docker Compose、域名解析、Nginx 反向代理和个人备案限制串起来。',
     category: 'Kubernetes learning record',
-    environment: 'macOS Intel / Docker Desktop / Minikube v1.38.1 / Kubernetes v1.30.5',
+    environment:
+      'macOS Intel / Docker Desktop / Minikube v1.38.1 / Kubernetes v1.30.5 / Alibaba Cloud Linux 3 / Nginx 1.24.0',
     publishedAt: '2026-07-14',
     blocks: [
       {
@@ -92,7 +93,7 @@ export const fallbackLearningRecords: Record<string, LearningRecord> = {
       {
         type: 'next',
         heading: '下一步',
-        body: '接下来会把本站本身继续 Kubernetes 化：为前端和后端编写 Dockerfile，构建本地镜像，加载到 Minikube，再用 Helm Chart 管理前端、后端、MySQL、Secret、ConfigMap、Service 和 PVC。',
+        body: '前后端 Dockerfile、非 root 运行和本地镜像构建验证已经完成。下一步使用当前 Git SHA 重新构建镜像并加载到 Minikube，再创建 Helm Chart 管理 MySQL、Spring Boot 后端、SvelteKit SSR、Nginx 网关、Secret、ConfigMap、Service 和 PVC。',
         codeSample: null,
       },
     ],

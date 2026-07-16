@@ -63,7 +63,7 @@ flowchart TD
     contactController -.异常.-> exception
     exception --> response
 
-    flyway -->|按 V1-V4 顺序执行| mysql
+    flyway -->|按 V1-V5 顺序执行| mysql
     deploy --> actuator
     deploy --> healthController
 ```

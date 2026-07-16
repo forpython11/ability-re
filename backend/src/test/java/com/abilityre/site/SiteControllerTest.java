@@ -1,5 +1,6 @@
 package com.abilityre.site;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
@@ -42,7 +43,11 @@ class SiteControllerTest {
                 .andExpect(jsonPath("$.data.slug").value("kubernetes-minikube"))
                 .andExpect(jsonPath("$.data.title").value("从零跑通部署入口：Minikube、Nginx 反向代理、域名解析与备案排查"))
                 .andExpect(jsonPath("$.data.blocks", hasSize(10)))
-                .andExpect(jsonPath("$.data.blocks[0].heading").value("我到底做了什么"));
+                .andExpect(jsonPath("$.data.blocks[0].heading").value("我到底做了什么"))
+                // V5 应把已完成的 Dockerfile 工作推进为当前 Minikube/Helm 待办。
+                .andExpect(jsonPath("$.data.blocks[9].heading").value("下一步"))
+                .andExpect(jsonPath("$.data.blocks[9].body", containsString("当前 Git SHA")))
+                .andExpect(jsonPath("$.data.blocks[9].body", containsString("Nginx 网关")));
     }
 
     @Test
